@@ -2,25 +2,14 @@
     "version": 2,
     "builds": [
         {
-            "src": "app.py",
+            "src": "api/normalize.py",
             "use": "@vercel/python"
         }
     ],
     "routes": [
         {
-            "src": "/static/(.*)",
-            "dest": "static/$1"
-        },
-        {
             "src": "/api/normalize",
-            "dest": "app.py"
-        },
-        {
-            "src": "/(.*)",
-            "dest": "app.py"
+            "dest": "api/normalize.py"
         }
-    ],
-    "env": {
-        "FLASK_ENV": "production"
-    }
+    ]
 }
