@@ -1,14 +1,9 @@
 import re
+import json
 
 def normalize_australian_mobile(phone_numbers):
     """
     标准化澳大利亚手机号码格式
-    
-    Args:
-        phone_numbers (list): 原始手机号码列表
-    
-    Returns:
-        list: 标准化后的手机号码列表
     """
     def clean_number(number):
         # 移除所有非数字字符
@@ -35,76 +30,70 @@ def handler(event, context):
     """
     Vercel Serverless Function 入口点
     """
-    from http import HTTPStatus
-    import json
+    try:
+        # 尝试解析 body
+        body = json.loads(event.get('body', '{}'))
+        phone_numbers = body.get('phone_numbers', [])
 
-    # 处理 GET 请求
-    if event['method'] == 'GET':
-        return {
-            'statusCode': HTTPStatus.OK,
-            'body': json.dumps({
-                'message': '澳大利亚手机号码标准化 API',
-                'usage': '发送 POST 请求到 /api/normalize，携带 phone_numbers 数组'
-            }),
-            'headers': {
-                'Content-Type': 'application/json'
+        # 验证输入
+        if not phone_numbers:
+            return {
+                'statusCode': 400,
+                'body': json.dumps({
+                    'error': '未提供手机号码',
+                    'message': '请在 phone_numbers 字段提供手机号码数组'
+                })
             }
+
+        # 标准化号码
+        normalized_numbers = normalize_australian_mobile(phone_numbers)
+
+        # 返回结果
+        return {
+            'statusCode': 200,
+            'body': json.dumps({
+                'normalized_numbers': normalized_numbers
+            })
         }
 
-    # 处理 POST 请求
-    if event['method'] == 'POST':
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'body': json.dumps({
+                'error': '服务器内部错误',
+                'message': str(e)
+            })
+        }
+
+def main(request):
+    """
+    处理 HTTP 请求的主函数
+    """
+    if request.method == 'POST':
         try:
-            # 解析请求体
-            body = json.loads(event.get('body', '{}'))
+            body = request.get_json()
             phone_numbers = body.get('phone_numbers', [])
 
             # 验证输入
             if not phone_numbers:
-                return {
-                    'statusCode': HTTPStatus.BAD_REQUEST,
-                    'body': json.dumps({
-                        'error': '未提供手机号码',
-                        'message': '请在 phone_numbers 字段提供手机号码数组'
-                    }),
-                    'headers': {
-                        'Content-Type': 'application/json'
-                    }
-                }
+                return json.dumps({
+                    'error': '未提供手机号码',
+                    'message': '请在 phone_numbers 字段提供手机号码数组'
+                }), 400
 
             # 标准化号码
             normalized_numbers = normalize_australian_mobile(phone_numbers)
 
-            # 返回结果
-            return {
-                'statusCode': HTTPStatus.OK,
-                'body': json.dumps({
-                    'normalized_numbers': normalized_numbers
-                }),
-                'headers': {
-                    'Content-Type': 'application/json'
-                }
-            }
+            return json.dumps({
+                'normalized_numbers': normalized_numbers
+            }), 200
 
         except Exception as e:
-            return {
-                'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR,
-                'body': json.dumps({
-                    'error': '服务器内部错误',
-                    'message': str(e)
-                }),
-                'headers': {
-                    'Content-Type': 'application/json'
-                }
-            }
-
-    # 处理其他方法
-    return {
-        'statusCode': HTTPStatus.METHOD_NOT_ALLOWED,
-        'body': json.dumps({
-            'error': '不支持的方法',
-            'allowed_methods': ['GET', 'POST']
-        }),
-        'headers': {
-            'Content-Type': 'application/json'
-        }
-    }
+            return json.dumps({
+                'error': '服务器内部错误',
+                'message': str(e)
+            }), 500
+    
+    return json.dumps({
+        'message': '仅支持 POST 请求'
+    }), 405
