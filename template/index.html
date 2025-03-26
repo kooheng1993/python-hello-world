@@ -1,4 +1,3 @@
-<!-- templates/index.html -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -10,74 +9,68 @@
     <div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-md">
         <h1 class="text-2xl font-bold mb-4 text-center">澳大利亚手机号码标准化</h1>
         
-        <form method="POST" class="mb-4">
+        <div class="mb-4">
+            <label class="block mb-2 text-sm font-medium text-gray-600">
+                输入手机号码（每行一个）
+            </label>
             <textarea 
-                name="phone_numbers" 
+                id="phoneNumbers" 
                 rows="8" 
                 class="w-full p-2 border rounded"
-                placeholder="在此输入手机号码，每行一个或用逗号分隔"
-            >{{ input_numbers }}</textarea>
+                placeholder="在此输入手机号码，每行一个"
+            ></textarea>
             
             <button 
-                type="submit" 
+                onclick="normalizeNumbers()"
                 class="mt-4 w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
             >
                 标准化手机号码
             </button>
-        </form>
-
-        {% if result %}
-        <div class="mt-4">
-            <h2 class="text-xl font-semibold mb-2">标准化结果:</h2>
-            <textarea 
-                readonly 
-                rows="8" 
-                class="w-full p-2 border rounded bg-gray-50"
-            >{% for number in result %}{{ number }}
-{% endfor %}</textarea>
         </div>
-        {% endif %}
-    </div>
-</body>
-</html><!-- templates/index.html -->
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <title>澳大利亚手机号码标准化</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 p-6">
-    <div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-md">
-        <h1 class="text-2xl font-bold mb-4 text-center">澳大利亚手机号码标准化</h1>
-        
-        <form method="POST" class="mb-4">
+
+        <div class="mt-4">
+            <label class="block mb-2 text-sm font-medium text-gray-600">
+                标准化结果
+            </label>
             <textarea 
-                name="phone_numbers" 
+                id="resultNumbers" 
                 rows="8" 
-                class="w-full p-2 border rounded"
-                placeholder="在此输入手机号码，每行一个或用逗号分隔"
-            >{{ input_numbers }}</textarea>
+                readonly 
+                class="w-full p-2 border rounded bg-gray-50"
+            ></textarea>
+        </div>
+    </div>
+
+    <script>
+        async function normalizeNumbers() {
+            const phoneNumbersTextarea = document.getElementById('phoneNumbers');
+            const resultNumbersTextarea = document.getElementById('resultNumbers');
             
-            <button 
-                type="submit" 
-                class="mt-4 w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-            >
-                标准化手机号码
-            </button>
-        </form>
+            // 将文本区域的内容按行分割
+            const phoneNumbers = phoneNumbersTextarea.value
+                .split('\n')
+                .filter(number => number.trim() !== '');
 
-        {% if result %}
-        <div class="mt-4">
-            <h2 class="text-xl font-semibold mb-2">标准化结果:</h2>
-            <textarea 
-                readonly 
-                rows="8" 
-                class="w-full p-2 border rounded bg-gray-50"
-            >{% for number in result %}{{ number }}
-{% endfor %}</textarea>
-        </div>
-        {% endif %}
-    </div>
+            try {
+                const response = await fetch('/api/normalize', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ phone_numbers: phoneNumbers })
+                });
+
+                const data = await response.json();
+
+                if (data.normalized_numbers) {
+                    resultNumbersTextarea.value = data.normalized_numbers.join('\n');
+                } else {
+                    resultNumbersTextarea.value = '处理失败：' + JSON.stringify(data);
+                }
+            } catch (error) {
+                resultNumbersTextarea.value = '发生错误：' + error.message;
+            }
+        }
+    </script>
 </body>
 </html>
