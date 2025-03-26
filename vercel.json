@@ -2,14 +2,14 @@
     "version": 2,
     "builds": [
         {
-            "src": "api/normalize.py",
+            "src": "api/index.py",
             "use": "@vercel/python"
         }
     ],
     "routes": [
         {
             "src": "/api/normalize",
-            "dest": "api/normalize.py"
+            "dest": "api/index.py"
         }
     ]
 }
