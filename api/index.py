@@ -1,5 +1,8 @@
 import re
 import json
+from flask import Flask, render_template, request, jsonify
+
+app = Flask(__name__, template_folder='templates')
 
 def normalize_australian_mobile(phone_numbers):
     """
@@ -26,76 +29,33 @@ def normalize_australian_mobile(phone_numbers):
     
     return normalized_numbers
 
-def handler(event, context):
-    """
-    Vercel Serverless Function 入口点
-    """
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/api/normalize', methods=['POST'])
+def api_normalize():
     try:
-        # Vercel 的 event 可能有不同的结构
-        body = json.loads(event.get('body', '{}'))
-        phone_numbers = body.get('phone_numbers', [])
+        data = request.get_json()
+        phone_numbers = data.get('phone_numbers', [])
 
         if not phone_numbers:
-            return {
-                'statusCode': 400,
-                'body': json.dumps({
-                    'error': '未提供手机号码',
-                    'message': '请在 phone_numbers 字段提供手机号码数组'
-                })
-            }
+            return jsonify({
+                'error': '未提供手机号码',
+                'message': '请在 phone_numbers 字段提供手机号码数组'
+            }), 400
 
         normalized_numbers = normalize_australian_mobile(phone_numbers)
 
-        return {
-            'statusCode': 200,
-            'body': json.dumps({
-                'normalized_numbers': normalized_numbers
-            }),
-            'headers': {
-                'Content-Type': 'application/json'
-            }
-        }
+        return jsonify({
+            'normalized_numbers': normalized_numbers
+        }), 200
 
     except Exception as e:
-        return {
-            'statusCode': 500,
-            'body': json.dumps({
-                'error': '服务器内部错误',
-                'message': str(e)
-            }),
-            'headers': {
-                'Content-Type': 'application/json'
-            }
-        }
+        return jsonify({
+            'error': '服务器内部错误',
+            'message': str(e)
+        }), 500
 
-def main(request):
-    """
-    处理 HTTP 请求的主函数
-    Flask/FastAPI 风格
-    """
-    if request.method == 'POST':
-        try:
-            body = request.get_json()
-            phone_numbers = body.get('phone_numbers', [])
-
-            if not phone_numbers:
-                return json.dumps({
-                    'error': '未提供手机号码',
-                    'message': '请在 phone_numbers 字段提供手机号码数组'
-                }), 400
-
-            normalized_numbers = normalize_australian_mobile(phone_numbers)
-
-            return json.dumps({
-                'normalized_numbers': normalized_numbers
-            }), 200
-
-        except Exception as e:
-            return json.dumps({
-                'error': '服务器内部错误',
-                'message': str(e)
-            }), 500
-    
-    return json.dumps({
-        'message': '仅支持 POST 请求'
-    }), 405
+def handler(event, context):
+    return app(event, context)
