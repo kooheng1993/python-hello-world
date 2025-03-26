@@ -8,8 +8,19 @@
     ],
     "routes": [
         {
+            "src": "/static/(.*)",
+            "dest": "static/$1"
+        },
+        {
+            "src": "/api/normalize",
+            "dest": "app.py"
+        },
+        {
             "src": "/(.*)",
             "dest": "app.py"
         }
-    ]
+    ],
+    "env": {
+        "FLASK_ENV": "production"
+    }
 }
