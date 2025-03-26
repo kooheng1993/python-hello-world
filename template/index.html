@@ -1,0 +1,83 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>澳大利亚手机号码标准化</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6">
+    <div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-md">
+        <h1 class="text-2xl font-bold mb-4 text-center">澳大利亚手机号码标准化</h1>
+        
+        <form method="POST" class="mb-4">
+            <textarea 
+                name="phone_numbers" 
+                rows="8" 
+                class="w-full p-2 border rounded"
+                placeholder="在此输入手机号码，每行一个或用逗号分隔"
+            >{{ input_numbers }}</textarea>
+            
+            <button 
+                type="submit" 
+                class="mt-4 w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+            >
+                标准化手机号码
+            </button>
+        </form>
+
+        {% if result %}
+        <div class="mt-4">
+            <h2 class="text-xl font-semibold mb-2">标准化结果:</h2>
+            <textarea 
+                readonly 
+                rows="8" 
+                class="w-full p-2 border rounded bg-gray-50"
+            >{% for number in result %}{{ number }}
+{% endfor %}</textarea>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html><!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>澳大利亚手机号码标准化</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6">
+    <div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-md">
+        <h1 class="text-2xl font-bold mb-4 text-center">澳大利亚手机号码标准化</h1>
+        
+        <form method="POST" class="mb-4">
+            <textarea 
+                name="phone_numbers" 
+                rows="8" 
+                class="w-full p-2 border rounded"
+                placeholder="在此输入手机号码，每行一个或用逗号分隔"
+            >{{ input_numbers }}</textarea>
+            
+            <button 
+                type="submit" 
+                class="mt-4 w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+            >
+                标准化手机号码
+            </button>
+        </form>
+
+        {% if result %}
+        <div class="mt-4">
+            <h2 class="text-xl font-semibold mb-2">标准化结果:</h2>
+            <textarea 
+                readonly 
+                rows="8" 
+                class="w-full p-2 border rounded bg-gray-50"
+            >{% for number in result %}{{ number }}
+{% endfor %}</textarea>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
